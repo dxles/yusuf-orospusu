@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daiwex</title>
+  <meta name="description" content="Sikişken Yusuf">
+  <script type="application/ld+json">
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #e8d5b0;
+      --text: #f5f0e8;
+      --sub: rgba(245,240,232,0.55);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #entry {
+      position: fixed; inset: 0; z-index: 200;
+      background: #000;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 1.3s ease, visibility 1.3s ease;
+    }
+    #entry.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .entry-content {
+      display: flex; flex-direction: column; align-items: center; gap: 20px;
+      text-align: center; color: var(--text);
+    }
+
+    .entry-line {
+      width: 0; height: 1px;
+      background: var(--accent);
+      transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    #entry:hover .entry-line { width: 80px; }
+
+    .entry-sub {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.65rem; text-transform: uppercase;
+      letter-spacing: 0.5em; color: var(--sub);
+      opacity: 0;
+      animation: entryFade 1.6s ease 0.6s forwards;
+    }
+
+    @keyframes entryFade {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+   #vid {
+  position: fixed; 
+  inset: 0; 
+  z-index: 0;
+  width: 100%; 
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+#vid.on { 
+  opacity: 1 !important;
+}
+
+#veil {
+  position: fixed; 
+  inset: 0; 
+  z-index: 1;
+  background: 
+    radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%),
+    linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 100%);
+  pointer-events: none;
+  display: none;
+}
+
+#veil.on {
+  display: block;
+}
+
+    #volbtn {
+      position: fixed; top: 1.4rem; right: 1.4rem; z-index: 50;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(14px);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.7s, background 0.3s;
+    }
+    #volbtn.on { opacity: 1; }
+    #volbtn:hover { background: rgba(255,255,255,0.12); }
+    #volbtn svg { width: 15px; height: 15px; stroke: var(--text); fill: none; stroke-width: 1.6; }
+
+    #socials {
+      position: fixed;
+      bottom: 2.2rem; left: 0; right: 0;
+      z-index: 40;
+      display: flex; justify-content: center; align-items: center;
+      gap: 0.7rem;
+      opacity: 0; transition: opacity 1.3s ease 0.7s;
+    }
+    #socials.on { opacity: 1; }
+
+    .s-btn {
+      display: flex; align-items: center; gap: 0.42rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: var(--sub);
+      padding: 0.56rem 1.3rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(16px);
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: 1px;
+      transition: color 0.3s, border-color 0.3s, background 0.3s;
+      white-space: nowrap;
+    }
+    .s-btn svg { width: 13px; height: 13px; flex-shrink: 0; transition: transform 0.3s; }
+    .s-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.26); background: rgba(0,0,0,0.48); }
+    .s-btn:hover svg { transform: scale(1.18); }
+
+    .sep { width: 1px; height: 11px; background: rgba(255,255,255,0.13); }
+
+    .tg-wrap { position: relative; }
+
+    .tg-menu {
+      position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      width: 230px;
+      background: rgba(6,6,6,0.88);
+      backdrop-filter: blur(28px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 2px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.28s ease, transform 0.28s ease, visibility 0.28s;
+      overflow: hidden;
+    }
+    .tg-wrap.open .tg-menu {
+      opacity: 1; visibility: visible; pointer-events: all;
+      transform: translateX(-50%) translateY(0);
+    }
+    .tg-menu::after {
+      content: '';
+      position: absolute;
+      bottom: -5px; left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 8px; height: 8px;
+      background: rgba(6,6,6,0.88);
+      border-right: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .tg-scroll {
+      max-height: 320px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    .tg-scroll::-webkit-scrollbar { width: 3px; }
+    .tg-scroll::-webkit-scrollbar-track { background: transparent; }
+    .tg-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+    .tg-section-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.46rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.22);
+      padding: 0.55rem 1.1rem 0.2rem;
+    }
+    .tg-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 0.25rem 0; }
+
+    .tg-item {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.52rem 1.1rem;
+      text-decoration: none;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--sub);
+      white-space: nowrap;
+      transition: color 0.22s, background 0.22s;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tg-item:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .tg-item svg { width: 11px; height: 11px; flex-shrink: 0; opacity: 0.6; }
+    .tg-item.account { color: rgba(232,213,176,0.7); }
+    .tg-item.account:hover { color: var(--accent); }
+
+    #aboutOverlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    #aboutOverlay.active { display: flex; animation: fadeIn 0.4s ease forwards; }
+
+    .about-card {
+      width: 100%; max-width: 500px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2rem;
+      font-family: 'Syne', sans-serif;
+    }
+    .about-card h1 { font-size: 1.3rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--accent); font-weight: 400; margin-bottom: 5px; }
+    .about-card .status { font-size: 0.55rem; color: var(--sub); text-transform: uppercase; letter-spacing: 0.2em; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    .about-card p { font-size: 0.8rem; line-height: 1.7; color: var(--sub); margin-bottom: 1rem; }
+    .about-card b { color: var(--text); }
+    .about-card .section-title { font-size: 0.65rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.3em; margin: 1.2rem 0 0.5rem; }
+    .about-card .quote { font-style: italic; border-left: 2px solid var(--accent); padding-left: 12px; font-size: 0.75rem; margin: 1.2rem 0; color: var(--sub); }
+    .about-card .tags { font-family: monospace; font-size: 0.7rem; color: var(--accent); opacity: 0.6; }
+    .about-card .close-btn { margin-top: 2rem; cursor: pointer; display: inline-block; padding: 0.6rem 1.2rem; border: 1px solid rgba(255,255,255,0.1); font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text); background: rgba(255,255,255,0.03); transition: 0.3s; }
+    .about-card .close-btn:hover { background: var(--text); color: #000; }
+
+    @media (max-width: 480px) {
+      #socials { bottom: 1.3rem; gap: 0.45rem; }
+      .s-btn { padding: 0.5rem 0.9rem; font-size: 0.54rem; letter-spacing: 0.28em; }
+      .tg-menu { width: 210px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="entry" onclick="go()">
+  <div class="entry-content">
+    <div class="entry-line"></div>
+    <span class="entry-sub">click to enter</span>
+  </div>
+</div>
+
+<video id="vid" playsinline loop preload="auto"></video> 
+<div id="veil"></div>
+
+<button id="volbtn" onclick="toggleMute()">
+  <svg id="ico-on" viewBox="0 0 24 24">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+  </svg>
+  <svg id="ico-off" viewBox="0 0 24 24" style="display:none">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <line x1="23" y1="9" x2="17" y2="15"/>
+    <line x1="17" y1="9" x2="23" y2="15"/>
+  </svg>
+
+<div id="socials">
+  <a class="s-btn" href="javascript:void(0)" onclick="openAbout()">
+    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5">
+      <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+    </svg>
+    About
+  </a>
+
+  <div class="sep"></div>
+
+  <a class="s-btn" href="https://instagram.com/yusufisgxd" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5">
+      <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+    </svg>
+    Instagram
+  </a>
+
+  <div class="sep"></div>
+
+  <div class="tg-wrap" id="tgWrap">
+    <button class="s-btn" onclick="toggleTg(event)">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5">
+        <path d="M21.19 3.4 2.8 10.57c-1.3.5-1.28 1.2-.23 1.52l4.65 1.45 10.78-6.8c.51-.31.98-.14.6.2L8.31 16.1l-.35 4.9c.51 0 .74-.23 1.02-.5l2.45-2.37 4.8 3.54c.88.49 1.52.24 1.74-.82L21.97 4.8c.32-1.28-.49-1.86-1.78-1.4z"/>
+      </svg>
+      Telegram ▾
+    </button>
+
+    <div class="tg-menu" id="tgMenu">
+      <div class="tg-scroll">
+        <p class="tg-section-label">Dead</p>
+        <a class="tg-item account" href="https://t.me/sizdeniyiyim" target="_blank" rel="noopener">@sizdeniyiyim</a>
+        <div class="tg-divider"></div>
+        <p class="tg-section-label">Url</p>
+        <a class="tg-item" href="https://t.me/atatv44k" target="_blank" rel="noopener">@Atatv44k</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const VIDEOS = ['simarik.mp4', 'bib.mp4', 'dene.mp4', 'mufasa.mp4','unuttumm.mp4'];
+  
+  const vid     = document.getElementById('vid');
+  const volBtn  = document.getElementById('volbtn');
+  const socials = document.getElementById('socials');
+  const icoOn   = document.getElementById('ico-on');
+  const icoOff  = document.getElementById('ico-off');
+  const tgWrap  = document.getElementById('tgWrap');
+
+  function getSmartVideo() {
+    const lastOne = sessionStorage.getItem('lastVid');
+    let selected;
+
+    if (VIDEOS.length > 1) {
+      do {
+        selected = VIDEOS[Math.floor(Math.random() * VIDEOS.length)];
+      } while (selected === lastOne); 
+    } else {
+      selected = VIDEOS[0];
+    }
+
+    sessionStorage.setItem('lastVid', selected);
+    return selected;
+  }
+
+  vid.src = getSmartVideo();
+
+  function go() {
+    document.getElementById('entry').classList.add('gone');
+    document.getElementById('veil').classList.add('on');
+    vid.muted = false;
+    vid.volume = 0.7;
+    vid.play().catch(() => { 
+      vid.muted = true; 
+      vid.play(); 
+    });
+    vid.classList.add('on');
+    socials.classList.add('on');
+    volBtn.classList.add('on');
+  }
+
+  function toggleMute() {
+    vid.muted = !vid.muted;
+    icoOn.style.display  = vid.muted ? 'none' : '';
+    icoOff.style.display = vid.muted ? '' : 'none';
+  }
+
+  function toggleTg(e) {
+    e.stopPropagation();
+    tgWrap.classList.toggle('open');
+  }
+
+  function openAbout() {
+    document.getElementById('aboutOverlay').classList.add('active');
+  }
+
+  function closeAbout() {
+    document.getElementById('aboutOverlay').classList.remove('active');
+  }
+
+  document.addEventListener('click', () => tgWrap.classList.remove('open'));
+  document.getElementById('tgMenu').addEventListener('click', e => e.stopPropagation());
+</script>
+  <script data-goatcounter="https://dxles.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E3HJQWMVDP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-E3HJQWMVDP');
+</script>
+</body>
+</html>
